@@ -1,0 +1,58 @@
+---
+- hosts: zookeeper
+  remote_user: ubuntu
+  tasks:
+    - name: Enable root login
+      shell: sudo cp ~/.ssh/authorized_keys /root/.ssh/
+
+- hosts: nimbus
+  remote_user: ubuntu
+  tasks:
+    - name: Enable root login
+      shell: sudo cp ~/.ssh/authorized_keys /root/.ssh/
+
+
+- hosts: supervisor
+  remote_user: ubuntu
+  tasks:
+    - name: Enable root login
+      shell: sudo cp ~/.ssh/authorized_keys /root/.ssh/
+
+
+- hosts: zookeeper
+  remote_user: root
+  tasks:
+      - lineinfile: dest=/etc/hosts regexp='^127\.0\.0\.1' line='127.0.0.1 localhost {{ansible_hostname}}' owner=root group=root mode=0644
+      - name: download zookeeper
+        get_url: url=http://apache.mirrors.pair.com/zookeeper/zookeeper-3.4.6/zookeeper-3.4.6.tar.gz dest=/home/ubuntu/zookeeper.tar.gz mode=0440
+      - unarchive: src=/home/ubuntu/zookeeper.tar.gz dest=/home/ubuntu/ copy=no
+      - copy: src=zoo.cfg dest=/home/ubuntu/zookeeper-3.4.6/conf/zoo.cfg mode=0644
+      - name: install java jre
+        apt: name=default-jre state=present update_cache=yes
+
+- hosts: nimbus
+  remote_user: root
+  tasks:
+    - lineinfile: dest=/etc/hosts regexp='^127\.0\.0\.1' line='127.0.0.1 localhost {{ansible_hostname}}' owner=root group=root mode=0644
+    - name: Import the public key used by the package management system
+      apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=7F0CEB10 state=present
+    - name: storm release
+      get_url: url=http://apache.mirrors.pair.com/storm/apache-storm-0.9.4/apache-storm-0.9.4.tar.gz dest=/home/ubuntu/stormv0.9.4.tar.gz mode=0440
+    - unarchive: src=/home/ubuntu/stormv0.9.4.tar.gz dest=/home/ubuntu/ copy=no
+    - copy: src=storm.yaml dest=/home/ubuntu/apache-storm-0.9.4/conf/storm.yaml mode=0644
+    - name: install java jre
+      apt: name=default-jre state=present update_cache=yes
+
+- hosts: supervisor
+  remote_user: root
+  tasks:
+    - lineinfile: dest=/etc/hosts regexp='^127\.0\.0\.1' line='127.0.0.1 localhost {{ansible_hostname}}' owner=root group=root mode=0644
+    - name: Import the public key used by the package management system
+      apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=7F0CEB10 state=present
+    - name: storm release
+      get_url: url=http://apache.mirrors.pair.com/storm/apache-storm-0.9.4/apache-storm-0.9.4.tar.gz dest=/home/ubuntu/stormv0.9.4.tar.gz mode=0440
+    - unarchive: src=/home/ubuntu/stormv0.9.4.tar.gz dest=/home/ubuntu/ copy=no
+    - copy: src=storm.yaml dest=/home/ubuntu/apache-storm-0.9.4/conf/storm.yaml mode=0644
+    - name: install java jre
+      apt: name=default-jre state=present update_cache=yes
+
