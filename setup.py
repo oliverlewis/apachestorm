@@ -77,9 +77,10 @@ class InstallAll(install):
         install.run(self)
 
 
-data_files= [ (home + '/.cloudmesh/' + d.lstrip('apachestorm/'),
-                [os.path.join(d, f) for f in files]) for d, folders, files in os.walk('apachestorm/etc')]
+data_files= [ (home + '/.cloudmesh/cloudmesh_apachestorm/' + d.lstrip('cloudmesh_apachestorm/'),
+                [os.path.join(d, f) for f in files]) for d, folders, files in os.walk('cloudmesh_apachestorm/etc')]
 
+# TODO: delete the copied over __init__.py file from the prefix
 
 import fnmatch
 import os
