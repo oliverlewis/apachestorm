@@ -3,18 +3,6 @@
 version = "1.0"
 
 
-requirements = [
-    'future',
-    'sh',
-    'docopt',
-    'pyaml',
-    'simplejson',
-    'nose',
-    'python-hostlist',
-    'prettytable',
-    'pytimeparse',
-    ]
-
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 import glob
@@ -39,7 +27,15 @@ banner("Installing Cloudmesh " + package_name)
 home = os.path.expanduser("~")
 
 auto_create_version(package_name, version)
-auto_create_requirements(requirements)
+
+
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
+
+
+requirements = parse_requirements('requirements.txt')
 
 
 class UploadToPypi(install):
@@ -80,6 +76,21 @@ class InstallAll(install):
         banner("Installing Cloudmesh " + package_name)
         install.run(self)
 
+
+data_files= [ (home + '/.cloudmesh/' + d.lstrip('apachestorm/'),
+                [os.path.join(d, f) for f in files]) for d, folders, files in os.walk('apachestorm/etc')]
+
+
+import fnmatch
+import os
+
+matches = []
+for root, dirnames, filenames in os.walk('apachestorm/etc'):
+  for filename in fnmatch.filter(filenames, '*'):
+    matches.append(os.path.join(root, filename).lstrip('apachestorm/'))
+data_dirs = matches
+
+
 setup(
     name='MODULE',
     version=version,
@@ -111,6 +122,9 @@ setup(
     ],
     packages=find_packages(),
     install_requires=requirements,
+    include_package_data=True,
+    data_files= data_files,
+    package_data={'apachestorm': data_dirs},
     cmdclass={
         'install': InstallBase,
         'requirements': InstallRequirements,
